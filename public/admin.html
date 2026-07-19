@@ -59,6 +59,7 @@
     <button class="tab-btn" data-tab="news">News</button>
     <button class="tab-btn" data-tab="gallery">Gallery</button>
     <button class="tab-btn" data-tab="messages">Messages <span id="msg-count"></span></button>
+    <button class="tab-btn" data-tab="settings">Club Info</button>
   </div>
 
   <!-- PLAYERS -->
@@ -139,6 +140,37 @@
   <!-- MESSAGES -->
   <section class="admin-section" id="tab-messages">
     <div id="messages-list"></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="admin-section" id="tab-settings">
+    <div class="form-card">
+      <h3>Homepage</h3>
+      <label>Eyebrow text (small line above the headline)</label>
+      <input type="text" id="s-hero_eyebrow">
+      <label>Headline / tagline</label>
+      <textarea id="s-hero_tagline" rows="2"></textarea>
+      <label>Description paragraph</label>
+      <textarea id="s-hero_description" rows="3"></textarea>
+    </div>
+    <div class="form-card">
+      <h3>Club stats</h3>
+      <div class="grid-2">
+        <div><label>Founded year</label><input type="text" id="s-founded_year"></div>
+        <div><label>League position</label><input type="text" id="s-league_position"></div>
+      </div>
+      <label>Home ground name</label><input type="text" id="s-home_ground">
+      <label>Training schedule</label><input type="text" id="s-training_schedule">
+    </div>
+    <div class="form-card">
+      <h3>Contact details</h3>
+      <div class="grid-2">
+        <div><label>Contact email</label><input type="text" id="s-contact_email"></div>
+        <div><label>Contact phone</label><input type="text" id="s-contact_phone"></div>
+      </div>
+      <button class="btn btn-primary" onclick="saveSettings()">Save changes</button>
+      <p id="settings-status" style="margin-top:12px; font-family:var(--mono); font-size:0.85rem; color:var(--pitch);"></p>
+    </div>
   </section>
 </div>
 
@@ -306,7 +338,28 @@ async function loadMessages(){
 async function markRead(id){ await api('/api/contact/'+id+'/read', {method:'PUT'}); loadMessages(); }
 async function deleteMessage(id){ if(confirm('Delete this message?')){ await api('/api/contact/'+id, {method:'DELETE'}); loadMessages(); } }
 
-function loadAll(){ loadPlayers(); loadFixtures(); loadNews(); loadGallery(); loadMessages(); }
+// ---------- Settings ----------
+const SETTINGS_KEYS = ['hero_eyebrow','hero_tagline','hero_description','founded_year','league_position','home_ground','training_schedule','contact_email','contact_phone'];
+async function loadSettings(){
+  const settings = await api('/api/settings');
+  SETTINGS_KEYS.forEach(key => {
+    const el = document.getElementById('s-' + key);
+    if (el && settings[key] !== undefined) el.value = settings[key];
+  });
+}
+async function saveSettings(){
+  const payload = {};
+  SETTINGS_KEYS.forEach(key => {
+    const el = document.getElementById('s-' + key);
+    if (el) payload[key] = el.value;
+  });
+  await api('/api/settings', { method: 'PUT', body: JSON.stringify(payload) });
+  const status = document.getElementById('settings-status');
+  status.textContent = 'Saved — refresh the live site to see the changes.';
+  setTimeout(() => { status.textContent = ''; }, 4000);
+}
+
+function loadAll(){ loadPlayers(); loadFixtures(); loadNews(); loadGallery(); loadMessages(); loadSettings(); }
 
 // Auto-login if password already in this browser session
 if (getPassword()) {
