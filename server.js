@@ -125,6 +125,20 @@ app.delete('/api/gallery/:id', requireAdmin, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Settings (site-wide text: tagline, founding year, contact info, etc.) ----------
+app.get('/api/settings', (req, res) => {
+  const rows = db.prepare('SELECT key, value FROM settings').all();
+  const settings = {};
+  rows.forEach(r => { settings[r.key] = r.value; });
+  res.json(settings);
+});
+app.put('/api/settings', requireAdmin, (req, res) => {
+  const updates = req.body; // { key: value, key2: value2, ... }
+  const stmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value');
+  Object.entries(updates).forEach(([key, value]) => stmt.run(key, value));
+  res.json({ ok: true });
+});
+
 // ---------- Contact messages ----------
 app.post('/api/contact', (req, res) => {
   const { name, email, interest, message } = req.body;
