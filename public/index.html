@@ -31,9 +31,9 @@
 <section style="padding:0; background:var(--ink); border-bottom:6px solid var(--gold); overflow:hidden;">
   <div class="wrap" style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:0; align-items:stretch; min-height:520px;">
     <div style="padding:70px 40px 70px 0; display:flex; flex-direction:column; justify-content:center; position:relative;">
-      <span class="eyebrow" style="color:var(--gold);">Home of Majengo Football Club</span>
-      <h1 style="color:var(--white); font-size:clamp(2.8rem,7vw,5.2rem); margin:10px 0 22px;">Every<br>street has<br>a striker.</h1>
-      <p style="color:rgba(255,255,255,0.75); max-width:440px; font-size:1.05rem; margin-bottom:30px;">
+      <span class="eyebrow" style="color:var(--gold);" id="hero-eyebrow">Home of Majengo Football Club</span>
+      <h1 style="color:var(--white); font-size:clamp(2.8rem,7vw,5.2rem); margin:10px 0 22px; white-space:pre-line;" id="hero-tagline">Every street has a striker.</h1>
+      <p style="color:rgba(255,255,255,0.75); max-width:440px; font-size:1.05rem; margin-bottom:30px;" id="hero-description">
         Founded on a dirt pitch in Majengo, built by the neighbourhood. Fifteen seasons on, we're still playing for the same badge.
       </p>
       <div style="display:flex; gap:14px; flex-wrap:wrap;">
@@ -50,10 +50,10 @@
 
 <section class="pitch-bg" style="padding:26px 0;">
   <div class="wrap" style="display:flex; flex-wrap:wrap; gap:28px; justify-content:space-between; font-family:var(--mono); text-align:center;">
-    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">2011</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Founded</div></div>
-    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">3rd</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Division One, current standing</div></div>
+    <div><div id="stat-founded" style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">2011</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Founded</div></div>
+    <div><div id="stat-position" style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">3rd</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Division One, current standing</div></div>
     <div><div id="player-count" style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">–</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Players in the squad</div></div>
-    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">Majengo Grounds</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Home pitch</div></div>
+    <div><div id="stat-ground" style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">Majengo Grounds</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Home pitch</div></div>
   </div>
 </section>
 
@@ -89,13 +89,20 @@
 <script>
 async function loadHome(){
   try{
-    const [players, fixtures, news] = await Promise.all([
+    const [players, fixtures, news, settings] = await Promise.all([
       fetch('/api/players').then(r=>r.json()),
       fetch('/api/fixtures').then(r=>r.json()),
-      fetch('/api/news').then(r=>r.json())
+      fetch('/api/news').then(r=>r.json()),
+      fetch('/api/settings').then(r=>r.json())
     ]);
 
     document.getElementById('player-count').textContent = players.length;
+    if (settings.hero_eyebrow) document.getElementById('hero-eyebrow').textContent = settings.hero_eyebrow;
+    if (settings.hero_tagline) document.getElementById('hero-tagline').textContent = settings.hero_tagline;
+    if (settings.hero_description) document.getElementById('hero-description').textContent = settings.hero_description;
+    if (settings.founded_year) document.getElementById('stat-founded').textContent = settings.founded_year;
+    if (settings.league_position) document.getElementById('stat-position').textContent = settings.league_position;
+    if (settings.home_ground) document.getElementById('stat-ground').textContent = settings.home_ground;
 
     const nextFx = fixtures.find(f => f.status === 'upcoming');
     const fxBox = document.getElementById('next-fixture');
