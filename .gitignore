@@ -1,0 +1,4 @@
+node_modules/
+.env
+majengo.db
+majengo.db-*

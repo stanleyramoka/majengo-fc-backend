@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Majengo FC</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="crest">
+      <span class="crest-mark">M</span>
+      <span class="crest-text">Majengo FC<span>Est. 2011 &middot; Yellow &amp; Green</span></span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="roster.html">Roster</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html" class="active">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="page-hero">
+  <span class="big-num">JOIN</span>
+  <div class="wrap">
+    <span class="eyebrow">Players &middot; Volunteers &middot; Sponsors</span>
+    <h1>Get in Touch</h1>
+  </div>
+</div>
+
+<section>
+  <div class="wrap" style="display:grid; grid-template-columns:1fr 1.1fr; gap:50px;">
+    <div>
+      <h2 style="font-size:1.3rem; color:var(--pitch); margin-bottom:16px;">Find us</h2>
+      <p class="muted" style="margin-bottom:26px;">Drop by training, send a message, or come watch a fixture — the club is always open to the neighbourhood.</p>
+      <div style="display:flex; flex-direction:column; gap:18px;">
+        <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
+          <span class="num-badge">&#128205;</span>
+          <div><strong>Majengo Grounds</strong><br><span class="muted">Training: Tue &amp; Thu, 17:30</span></div>
+        </div>
+        <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
+          <span class="num-badge">&#9993;</span>
+          <div><strong>info@majengofc.example</strong><br><span class="muted">General enquiries</span></div>
+        </div>
+        <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
+          <span class="num-badge">&#128222;</span>
+          <div><strong>+254 700 000 000</strong><br><span class="muted">Club secretary</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="padding:34px;">
+      <h2 style="font-size:1.3rem; color:var(--pitch); margin-bottom:20px;">Send a message</h2>
+      <form id="contact-form">
+        <div class="field"><label for="name">Full name</label><input type="text" id="name" name="name" required></div>
+        <div class="field"><label for="email">Email</label><input type="email" id="email" name="email" required></div>
+        <div class="field">
+          <label for="interest">I'm interested in</label>
+          <select id="interest" name="interest">
+            <option>Playing for the club</option>
+            <option>Volunteering</option>
+            <option>Sponsorship</option>
+            <option>Youth academy</option>
+            <option>Something else</option>
+          </select>
+        </div>
+        <div class="field"><label for="message">Message</label><textarea id="message" name="message" rows="5" required></textarea></div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Send message</button>
+        <p id="form-status" role="status"></p>
+      </form>
+    </div>
+  </div>
+</section>
+
+<style>
+  .field{ margin-bottom:18px; }
+  .field label{ display:block; font-family:var(--mono); font-size:0.78rem; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:6px; color: var(--ink); }
+  .field input, .field select, .field textarea{ width:100%; padding:11px 13px; border:1px solid var(--line); border-radius:4px; font-family:var(--body); font-size:0.95rem; background:var(--cream); }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline: 2px solid var(--gold-deep); outline-offset:1px; }
+  #form-status{ margin-top:14px; font-size:0.9rem; color: var(--pitch); font-family:var(--mono); display:none; }
+  #form-status.visible{ display:block; }
+  @media (max-width:760px){ section .wrap{ grid-template-columns:1fr !important; } }
+</style>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><h4>Majengo FC</h4><p>Majengo Grounds<br>Home pitch since 2011</p></div>
+    <div><h4>Explore</h4><p><a href="roster.html">Roster</a></p><p><a href="schedule.html">Schedule</a></p><p><a href="news.html">News</a></p></div>
+    <div><h4>Connect</h4><p><a href="contact.html">Contact &amp; join</a></p><p><a href="gallery.html">Gallery</a></p></div>
+  </div>
+  <div class="foot-bottom">&copy; 2026 Majengo Football Club. Built by the neighbourhood.</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+document.getElementById('contact-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const status = document.getElementById('form-status');
+  const btn = e.target.querySelector('button[type="submit"]');
+  btn.disabled = true; btn.textContent = 'Sending...';
+  const payload = {
+    name: document.getElementById('name').value,
+    email: document.getElementById('email').value,
+    interest: document.getElementById('interest').value,
+    message: document.getElementById('message').value
+  };
+  try{
+    const res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      status.textContent = "Thanks — your message has been saved. We'll get back to you shortly.";
+      e.target.reset();
+    } else {
+      const data = await res.json();
+      status.textContent = data.error || "Something went wrong. Please try again.";
+    }
+  }catch(err){
+    status.textContent = "Something went wrong. Please try again.";
+  }
+  status.classList.add('visible');
+  btn.disabled = false; btn.textContent = 'Send message';
+});
+</script>
+</body>
+</html>

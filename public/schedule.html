@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schedule — Majengo FC</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="crest">
+      <span class="crest-mark">M</span>
+      <span class="crest-text">Majengo FC<span>Est. 2011 &middot; Yellow &amp; Green</span></span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="roster.html">Roster</a></li>
+        <li><a href="schedule.html" class="active">Schedule</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="page-hero">
+  <span class="big-num">MD</span>
+  <div class="wrap">
+    <span class="eyebrow">Division One &middot; 2026 Season</span>
+    <h1>Fixtures &amp; Results</h1>
+  </div>
+</div>
+
+<section><div class="wrap" id="schedule-content">Loading fixtures…</div></section>
+
+<style>
+  .fixture-list{ display:flex; flex-direction:column; gap:12px; }
+  .fixture{ display:flex; align-items:center; gap:20px; padding:16px 22px; }
+  .fx-mid{ flex:1; font-size:0.98rem; }
+  .fx-mid span{ font-size:0.85rem; }
+  .pill{ font-family:var(--mono); font-size:0.75rem; text-transform:uppercase; letter-spacing:0.06em; background:var(--pitch); color:var(--white); padding:6px 12px; border-radius:20px; }
+  .score{ font-family:var(--mono); font-weight:700; font-size:1rem; background:var(--gold); color:var(--ink); padding:6px 14px; border-radius:4px; }
+  .score.loss{ background: var(--ink); color: var(--white); }
+  @media (max-width:600px){ .fixture{ flex-wrap:wrap; } }
+</style>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><h4>Majengo FC</h4><p>Majengo Grounds<br>Home pitch since 2011</p></div>
+    <div><h4>Explore</h4><p><a href="roster.html">Roster</a></p><p><a href="schedule.html">Schedule</a></p><p><a href="news.html">News</a></p></div>
+    <div><h4>Connect</h4><p><a href="contact.html">Contact &amp; join</a></p><p><a href="gallery.html">Gallery</a></p></div>
+  </div>
+  <div class="foot-bottom">&copy; 2026 Majengo Football Club. Built by the neighbourhood.</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+async function loadSchedule(){
+  const box = document.getElementById('schedule-content');
+  try{
+    const fixtures = await fetch('/api/fixtures').then(r=>r.json());
+    const upcoming = fixtures.filter(f => f.status === 'upcoming');
+    const results = fixtures.filter(f => f.status === 'result');
+
+    const fxRow = (f, showScore) => `
+      <div class="card fixture">
+        <span class="num-badge">${f.matchday}</span>
+        <div class="fx-mid"><strong>${f.home_team}</strong> vs <strong>${f.away_team}</strong><br>
+          <span class="muted">${f.match_date}${f.match_time ? ' &middot; ' + f.match_time : ''} &middot; ${f.venue || ''}</span>
+        </div>
+        ${showScore
+          ? `<span class="score ${f.result==='L'?'loss':''}">${f.score || ''} ${f.result || ''}</span>`
+          : `<span class="pill">Upcoming</span>`}
+      </div>`;
+
+    box.innerHTML = `
+      <h2 style="font-size:1.2rem; color:var(--pitch); margin-bottom:18px;">Upcoming</h2>
+      <div class="fixture-list">${upcoming.length ? upcoming.map(f=>fxRow(f,false)).join('') : '<p class="muted">No upcoming fixtures scheduled.</p>'}</div>
+      <h2 style="font-size:1.2rem; color:var(--pitch); margin:44px 0 18px;">Results</h2>
+      <div class="fixture-list">${results.length ? results.map(f=>fxRow(f,true)).join('') : '<p class="muted">No results yet.</p>'}</div>
+    `;
+  }catch(err){
+    box.textContent = 'Could not load fixtures right now.';
+  }
+}
+loadSchedule();
+</script>
+</body>
+</html>

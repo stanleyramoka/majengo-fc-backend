@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Majengo FC</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body{ background: var(--cream); }
+  .admin-wrap{ max-width: 980px; margin: 0 auto; padding: 40px 24px 100px; }
+  .tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:30px; }
+  .tab-btn{
+    font-family:var(--mono); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.05em;
+    padding:10px 18px; border-radius:4px; border:1px solid var(--line); background:var(--white); cursor:pointer;
+  }
+  .tab-btn.active{ background:var(--ink); color:var(--gold); border-color:var(--ink); }
+  .admin-section{ display:none; }
+  .admin-section.active{ display:block; }
+  .row{ display:flex; gap:12px; align-items:center; padding:14px 18px; border:1px solid var(--line); border-radius:6px; background:var(--white); margin-bottom:10px; flex-wrap:wrap; }
+  .row .info{ flex:1; min-width:200px; }
+  .row .actions{ display:flex; gap:8px; }
+  .row button{ font-family:var(--mono); font-size:0.75rem; padding:7px 12px; border-radius:4px; border:1px solid var(--line); background:var(--cream); cursor:pointer; }
+  .row button.danger{ color:#b3261e; border-color:#b3261e33; }
+  .form-card{ background:var(--white); border:1px solid var(--line); border-radius:6px; padding:24px; margin-bottom:30px; }
+  .form-card h3{ font-size:1.05rem; margin-bottom:16px; color:var(--pitch); text-transform:none; font-family:var(--body); font-weight:700; }
+  .grid-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .form-card label{ display:block; font-family:var(--mono); font-size:0.72rem; text-transform:uppercase; margin-bottom:4px; }
+  .form-card input, .form-card select, .form-card textarea{
+    width:100%; padding:9px 11px; border:1px solid var(--line); border-radius:4px; margin-bottom:12px; font-family:var(--body);
+  }
+  #login-screen{ max-width:360px; margin: 100px auto; text-align:center; }
+  #login-screen input{ width:100%; padding:11px; margin:16px 0; border:1px solid var(--line); border-radius:4px; }
+  #login-error{ color:#b3261e; font-size:0.85rem; min-height:1.2em; }
+  .unread{ background: #FFF8E1; }
+  .badge-unread{ font-family:var(--mono); font-size:0.68rem; background:var(--gold); color:var(--ink); padding:3px 8px; border-radius:10px; }
+</style>
+</head>
+<body>
+
+<header class="site-header"><div class="wrap"><a href="index.html" class="crest"><span class="crest-mark">M</span><span class="crest-text">Majengo FC<span>Admin panel</span></span></a></div></header>
+
+<div id="login-screen">
+  <h2 style="font-size:1.4rem; margin-bottom:6px;">Admin login</h2>
+  <p class="muted">Enter the admin password to manage the site.</p>
+  <input type="password" id="login-password" placeholder="Password">
+  <button class="btn btn-primary" style="width:100%;" onclick="login()">Log in</button>
+  <p id="login-error"></p>
+</div>
+
+<div class="admin-wrap" id="admin-app" style="display:none;">
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+    <h1 style="font-size:1.7rem;">Site Admin</h1>
+    <button class="btn btn-outline-dark" onclick="logout()">Log out</button>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="players">Roster</button>
+    <button class="tab-btn" data-tab="fixtures">Schedule</button>
+    <button class="tab-btn" data-tab="news">News</button>
+    <button class="tab-btn" data-tab="gallery">Gallery</button>
+    <button class="tab-btn" data-tab="messages">Messages <span id="msg-count"></span></button>
+  </div>
+
+  <!-- PLAYERS -->
+  <section class="admin-section active" id="tab-players">
+    <div class="form-card">
+      <h3>Add player</h3>
+      <div class="grid-2">
+        <div><label>Squad number</label><input type="number" id="p-number"></div>
+        <div><label>Name</label><input type="text" id="p-name"></div>
+      </div>
+      <div class="grid-2">
+        <div><label>Category</label>
+          <select id="p-category"><option>Goalkeepers</option><option>Defenders</option><option>Midfielders</option><option>Forwards</option></select>
+        </div>
+        <div><label>Role note</label><input type="text" id="p-role" placeholder="e.g. Centre-back · Captain"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addPlayer()">Add player</button>
+    </div>
+    <div id="players-list"></div>
+  </section>
+
+  <!-- FIXTURES -->
+  <section class="admin-section" id="tab-fixtures">
+    <div class="form-card">
+      <h3>Add fixture</h3>
+      <div class="grid-2">
+        <div><label>Matchday</label><input type="text" id="f-matchday" placeholder="MD16"></div>
+        <div><label>Status</label><select id="f-status"><option value="upcoming">Upcoming</option><option value="result">Result</option></select></div>
+      </div>
+      <div class="grid-2">
+        <div><label>Home team</label><input type="text" id="f-home" value="Majengo FC"></div>
+        <div><label>Away team</label><input type="text" id="f-away"></div>
+      </div>
+      <div class="grid-2">
+        <div><label>Date</label><input type="text" id="f-date" placeholder="Sat 15 Aug"></div>
+        <div><label>Time (optional)</label><input type="text" id="f-time" placeholder="16:00"></div>
+      </div>
+      <label>Venue</label><input type="text" id="f-venue" placeholder="Majengo Grounds (Home)">
+      <div class="grid-2">
+        <div><label>Score (if result)</label><input type="text" id="f-score" placeholder="2–1"></div>
+        <div><label>Result (W/D/L)</label><input type="text" id="f-result" placeholder="W"></div>
+      </div>
+      <button class="btn btn-primary" onclick="addFixture()">Add fixture</button>
+    </div>
+    <div id="fixtures-list"></div>
+  </section>
+
+  <!-- NEWS -->
+  <section class="admin-section" id="tab-news">
+    <div class="form-card">
+      <h3>Add news post</h3>
+      <div class="grid-2">
+        <div><label>Matchday tag (optional)</label><input type="text" id="n-matchday" placeholder="MD13"></div>
+        <div><label>Date</label><input type="text" id="n-date" placeholder="20 Jul 2026"></div>
+      </div>
+      <label>Title</label><input type="text" id="n-title">
+      <label>Body</label><textarea id="n-body" rows="4"></textarea>
+      <button class="btn btn-primary" onclick="addNews()">Publish</button>
+    </div>
+    <div id="news-list"></div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="admin-section" id="tab-gallery">
+    <div class="form-card">
+      <h3>Add gallery tile</h3>
+      <label>Label</label><input type="text" id="g-label" placeholder="Matchday">
+      <div class="grid-2">
+        <div><label>Color start (hex)</label><input type="text" id="g-color1" placeholder="#F4C430"></div>
+        <div><label>Color end (hex)</label><input type="text" id="g-color2" placeholder="#C9960C"></div>
+      </div>
+      <label>Real image URL (optional — overrides the color tile)</label><input type="text" id="g-image" placeholder="https://...">
+      <button class="btn btn-primary" onclick="addGallery()">Add tile</button>
+    </div>
+    <div id="gallery-list"></div>
+  </section>
+
+  <!-- MESSAGES -->
+  <section class="admin-section" id="tab-messages">
+    <div id="messages-list"></div>
+  </section>
+</div>
+
+<script>
+const PASSWORD_KEY = 'majengo_admin_pw';
+
+function getPassword(){ return sessionStorage.getItem(PASSWORD_KEY); }
+
+async function api(path, opts = {}){
+  opts.headers = Object.assign({ 'Content-Type': 'application/json', 'x-admin-password': getPassword() }, opts.headers || {});
+  const res = await fetch(path, opts);
+  if (res.status === 401) { logout(); throw new Error('Unauthorized'); }
+  return res.json();
+}
+
+async function login(){
+  const pw = document.getElementById('login-password').value;
+  const errBox = document.getElementById('login-error');
+  errBox.textContent = '';
+  try{
+    const res = await fetch('/api/admin/login', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ password: pw })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      sessionStorage.setItem(PASSWORD_KEY, pw);
+      document.getElementById('login-screen').style.display = 'none';
+      document.getElementById('admin-app').style.display = 'block';
+      loadAll();
+    } else {
+      errBox.textContent = 'Incorrect password.';
+    }
+  }catch(err){
+    errBox.textContent = 'Could not reach the server.';
+  }
+}
+function logout(){
+  sessionStorage.removeItem(PASSWORD_KEY);
+  document.getElementById('admin-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'block';
+}
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+// ---------- Players ----------
+async function loadPlayers(){
+  const players = await api('/api/players');
+  document.getElementById('players-list').innerHTML = players.map(p => `
+    <div class="row">
+      <span class="num-badge">${p.squad_number}</span>
+      <div class="info"><strong>${p.name}</strong> — ${p.category}<br><span class="muted">${p.role_note || ''}</span></div>
+      <div class="actions"><button class="danger" onclick="deletePlayer(${p.id})">Delete</button></div>
+    </div>`).join('') || '<p class="muted">No players yet.</p>';
+}
+async function addPlayer(){
+  await api('/api/players', { method:'POST', body: JSON.stringify({
+    squad_number: Number(document.getElementById('p-number').value),
+    name: document.getElementById('p-name').value,
+    category: document.getElementById('p-category').value,
+    role_note: document.getElementById('p-role').value
+  })});
+  ['p-number','p-name','p-role'].forEach(id => document.getElementById(id).value = '');
+  loadPlayers();
+}
+async function deletePlayer(id){ if(confirm('Delete this player?')){ await api('/api/players/'+id, {method:'DELETE'}); loadPlayers(); } }
+
+// ---------- Fixtures ----------
+async function loadFixtures(){
+  const fixtures = await api('/api/fixtures');
+  document.getElementById('fixtures-list').innerHTML = fixtures.map(f => `
+    <div class="row">
+      <span class="num-badge">${f.matchday}</span>
+      <div class="info"><strong>${f.home_team}</strong> vs <strong>${f.away_team}</strong><br>
+        <span class="muted">${f.match_date} ${f.match_time||''} · ${f.venue||''} · ${f.status}${f.status==='result' ? ' · '+f.score+' '+f.result : ''}</span></div>
+      <div class="actions"><button class="danger" onclick="deleteFixture(${f.id})">Delete</button></div>
+    </div>`).join('') || '<p class="muted">No fixtures yet.</p>';
+}
+async function addFixture(){
+  await api('/api/fixtures', { method:'POST', body: JSON.stringify({
+    matchday: document.getElementById('f-matchday').value,
+    home_team: document.getElementById('f-home').value,
+    away_team: document.getElementById('f-away').value,
+    match_date: document.getElementById('f-date').value,
+    match_time: document.getElementById('f-time').value || null,
+    venue: document.getElementById('f-venue').value,
+    status: document.getElementById('f-status').value,
+    score: document.getElementById('f-score').value || null,
+    result: document.getElementById('f-result').value || null
+  })});
+  ['f-matchday','f-away','f-date','f-time','f-venue','f-score','f-result'].forEach(id => document.getElementById(id).value = '');
+  loadFixtures();
+}
+async function deleteFixture(id){ if(confirm('Delete this fixture?')){ await api('/api/fixtures/'+id, {method:'DELETE'}); loadFixtures(); } }
+
+// ---------- News ----------
+async function loadNews(){
+  const news = await api('/api/news');
+  document.getElementById('news-list').innerHTML = news.map(n => `
+    <div class="row">
+      <span class="num-badge">${n.matchday||'–'}</span>
+      <div class="info"><strong>${n.title}</strong><br><span class="muted">${n.published_date}</span></div>
+      <div class="actions"><button class="danger" onclick="deleteNews(${n.id})">Delete</button></div>
+    </div>`).join('') || '<p class="muted">No news yet.</p>';
+}
+async function addNews(){
+  await api('/api/news', { method:'POST', body: JSON.stringify({
+    matchday: document.getElementById('n-matchday').value || null,
+    published_date: document.getElementById('n-date').value,
+    title: document.getElementById('n-title').value,
+    body: document.getElementById('n-body').value
+  })});
+  ['n-matchday','n-date','n-title','n-body'].forEach(id => document.getElementById(id).value = '');
+  loadNews();
+}
+async function deleteNews(id){ if(confirm('Delete this post?')){ await api('/api/news/'+id, {method:'DELETE'}); loadNews(); } }
+
+// ---------- Gallery ----------
+async function loadGallery(){
+  const items = await api('/api/gallery');
+  document.getElementById('gallery-list').innerHTML = items.map(g => `
+    <div class="row">
+      <div style="width:44px;height:44px;border-radius:4px;background:${g.image_url?`url('${g.image_url}') center/cover`:`linear-gradient(135deg,${g.color_start},${g.color_end})`};"></div>
+      <div class="info"><strong>${g.label}</strong></div>
+      <div class="actions"><button class="danger" onclick="deleteGallery(${g.id})">Delete</button></div>
+    </div>`).join('') || '<p class="muted">No gallery tiles yet.</p>';
+}
+async function addGallery(){
+  await api('/api/gallery', { method:'POST', body: JSON.stringify({
+    label: document.getElementById('g-label').value,
+    color_start: document.getElementById('g-color1').value || '#F4C430',
+    color_end: document.getElementById('g-color2').value || '#C9960C',
+    image_url: document.getElementById('g-image').value || null
+  })});
+  ['g-label','g-color1','g-color2','g-image'].forEach(id => document.getElementById(id).value = '');
+  loadGallery();
+}
+async function deleteGallery(id){ if(confirm('Delete this tile?')){ await api('/api/gallery/'+id, {method:'DELETE'}); loadGallery(); } }
+
+// ---------- Messages ----------
+async function loadMessages(){
+  const msgs = await api('/api/contact');
+  document.getElementById('msg-count').textContent = msgs.filter(m=>!m.read).length ? `(${msgs.filter(m=>!m.read).length})` : '';
+  document.getElementById('messages-list').innerHTML = msgs.map(m => `
+    <div class="row ${m.read ? '' : 'unread'}">
+      <div class="info">
+        ${!m.read ? '<span class="badge-unread">NEW</span> ' : ''}
+        <strong>${m.name}</strong> — ${m.email} ${m.interest ? '· '+m.interest : ''}<br>
+        <span class="muted">${m.message}</span><br>
+        <span class="muted" style="font-size:0.75rem;">${m.created_at}</span>
+      </div>
+      <div class="actions">
+        ${!m.read ? `<button onclick="markRead(${m.id})">Mark read</button>` : ''}
+        <button class="danger" onclick="deleteMessage(${m.id})">Delete</button>
+      </div>
+    </div>`).join('') || '<p class="muted">No messages yet.</p>';
+}
+async function markRead(id){ await api('/api/contact/'+id+'/read', {method:'PUT'}); loadMessages(); }
+async function deleteMessage(id){ if(confirm('Delete this message?')){ await api('/api/contact/'+id, {method:'DELETE'}); loadMessages(); } }
+
+function loadAll(){ loadPlayers(); loadFixtures(); loadNews(); loadGallery(); loadMessages(); }
+
+// Auto-login if password already in this browser session
+if (getPassword()) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-app').style.display = 'block';
+  loadAll();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Majengo FC</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="crest">
+      <span class="crest-mark">M</span>
+      <span class="crest-text">Majengo FC<span>Est. 2011 &middot; Yellow &amp; Green</span></span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav>
+      <ul>
+        <li><a href="index.html" class="active">Home</a></li>
+        <li><a href="roster.html">Roster</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<section style="padding:0; background:var(--ink); border-bottom:6px solid var(--gold); overflow:hidden;">
+  <div class="wrap" style="display:grid; grid-template-columns: 1.1fr 0.9fr; gap:0; align-items:stretch; min-height:520px;">
+    <div style="padding:70px 40px 70px 0; display:flex; flex-direction:column; justify-content:center; position:relative;">
+      <span class="eyebrow" style="color:var(--gold);">Home of Majengo Football Club</span>
+      <h1 style="color:var(--white); font-size:clamp(2.8rem,7vw,5.2rem); margin:10px 0 22px;">Every<br>street has<br>a striker.</h1>
+      <p style="color:rgba(255,255,255,0.75); max-width:440px; font-size:1.05rem; margin-bottom:30px;">
+        Founded on a dirt pitch in Majengo, built by the neighbourhood. Fifteen seasons on, we're still playing for the same badge.
+      </p>
+      <div style="display:flex; gap:14px; flex-wrap:wrap;">
+        <a href="schedule.html" class="btn btn-primary">Next Fixture</a>
+        <a href="contact.html" class="btn btn-outline">Join The Club</a>
+      </div>
+    </div>
+    <div class="gold-bg" style="display:flex; align-items:center; justify-content:center; position:relative; padding:40px;">
+      <span style="font-family:var(--display); font-size:min(30vw,15rem); line-height:1; color:rgba(22,24,29,0.1); position:absolute;">9</span>
+      <div id="next-fixture" style="position:relative; text-align:center; font-family:var(--mono);">Loading next fixture…</div>
+    </div>
+  </div>
+</section>
+
+<section class="pitch-bg" style="padding:26px 0;">
+  <div class="wrap" style="display:flex; flex-wrap:wrap; gap:28px; justify-content:space-between; font-family:var(--mono); text-align:center;">
+    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">2011</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Founded</div></div>
+    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">3rd</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Division One, current standing</div></div>
+    <div><div id="player-count" style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">–</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Players in the squad</div></div>
+    <div><div style="font-family:var(--display); font-size:1.8rem; color:var(--gold);">Majengo Grounds</div><div style="font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; opacity:0.8;">Home pitch</div></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <div><span class="eyebrow">Club News</span><h2>From the touchline</h2></div>
+      <a href="news.html" class="btn btn-outline-dark">All News</a>
+    </div>
+    <div id="news-preview" style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:24px;">Loading news…</div>
+  </div>
+</section>
+
+<section class="gold-bg">
+  <div class="wrap center">
+    <span class="eyebrow" style="color:var(--pitch);">Get Involved</span>
+    <h2 style="font-size:clamp(1.8rem,4vw,2.8rem); margin:12px 0 20px;">The badge belongs to the block.</h2>
+    <p class="muted" style="max-width:520px; margin:0 auto 26px;">Players, volunteers, and sponsors all keep this club running. There's a place on the team sheet for you.</p>
+    <a href="contact.html" class="btn btn-outline-dark">Get in touch</a>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><h4>Majengo FC</h4><p>Majengo Grounds<br>Home pitch since 2011</p></div>
+    <div><h4>Explore</h4><p><a href="roster.html">Roster</a></p><p><a href="schedule.html">Schedule</a></p><p><a href="news.html">News</a></p></div>
+    <div><h4>Connect</h4><p><a href="contact.html">Contact &amp; join</a></p><p><a href="gallery.html">Gallery</a></p></div>
+  </div>
+  <div class="foot-bottom">&copy; 2026 Majengo Football Club. Built by the neighbourhood.</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+async function loadHome(){
+  try{
+    const [players, fixtures, news] = await Promise.all([
+      fetch('/api/players').then(r=>r.json()),
+      fetch('/api/fixtures').then(r=>r.json()),
+      fetch('/api/news').then(r=>r.json())
+    ]);
+
+    document.getElementById('player-count').textContent = players.length;
+
+    const nextFx = fixtures.find(f => f.status === 'upcoming');
+    const fxBox = document.getElementById('next-fixture');
+    if (nextFx) {
+      fxBox.innerHTML = `
+        <p style="letter-spacing:0.14em; font-size:0.8rem; text-transform:uppercase; margin-bottom:10px;">Next Matchday</p>
+        <p style="font-family:var(--display); font-size:2.1rem; letter-spacing:0.01em; line-height:1.15;">${nextFx.home_team.toUpperCase()}<br><span style="font-size:1.1rem;">vs</span><br>${nextFx.away_team.toUpperCase()}</p>
+        <p style="margin-top:14px; font-size:0.85rem;">${nextFx.match_date}${nextFx.match_time ? ' &middot; ' + nextFx.match_time : ''} &middot; ${nextFx.venue || ''}</p>`;
+    } else {
+      fxBox.textContent = 'No upcoming fixtures yet.';
+    }
+
+    const newsBox = document.getElementById('news-preview');
+    newsBox.innerHTML = news.slice(0,3).map(n => `
+      <article class="card"><div style="padding:26px;">
+        <span class="num-badge">${n.matchday || '–'}</span>
+        <h3 style="margin-top:16px; font-size:1.2rem;">${n.title}</h3>
+        <p class="muted" style="margin-top:10px; font-size:0.94rem;">${n.body.slice(0,120)}${n.body.length>120?'…':''}</p>
+      </div></article>`).join('');
+  }catch(err){
+    document.getElementById('next-fixture').textContent = 'Could not load fixture data.';
+    document.getElementById('news-preview').textContent = 'Could not load news.';
+  }
+}
+loadHome();
+</script>
+</body>
+</html>

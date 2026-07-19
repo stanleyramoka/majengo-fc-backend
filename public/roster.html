@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roster — Majengo FC</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="index.html" class="crest">
+      <span class="crest-mark">M</span>
+      <span class="crest-text">Majengo FC<span>Est. 2011 &middot; Yellow &amp; Green</span></span>
+    </a>
+    <button class="nav-toggle" aria-label="Toggle menu" aria-expanded="false">&#9776;</button>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="roster.html" class="active">Roster</a></li>
+        <li><a href="schedule.html">Schedule</a></li>
+        <li><a href="news.html">News</a></li>
+        <li><a href="gallery.html">Gallery</a></li>
+        <li><a href="contact.html">Contact</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<div class="page-hero">
+  <span class="big-num">18</span>
+  <div class="wrap">
+    <span class="eyebrow">2026 Season</span>
+    <h1>The Squad</h1>
+  </div>
+</div>
+
+<section><div class="wrap" id="roster-content">Loading squad…</div></section>
+
+<style>
+  .roster-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(230px,1fr)); gap:14px; }
+  .player{ display:flex; align-items:center; gap:16px; padding:18px 20px; }
+  .pname{ font-size:1.02rem; text-transform:none; letter-spacing:0; font-family:var(--body); font-weight:600; }
+</style>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><h4>Majengo FC</h4><p>Majengo Grounds<br>Home pitch since 2011</p></div>
+    <div><h4>Explore</h4><p><a href="roster.html">Roster</a></p><p><a href="schedule.html">Schedule</a></p><p><a href="news.html">News</a></p></div>
+    <div><h4>Connect</h4><p><a href="contact.html">Contact &amp; join</a></p><p><a href="gallery.html">Gallery</a></p></div>
+  </div>
+  <div class="foot-bottom">&copy; 2026 Majengo Football Club. Built by the neighbourhood.</div>
+</footer>
+
+<script src="script.js"></script>
+<script>
+async function loadRoster(){
+  const box = document.getElementById('roster-content');
+  try{
+    const players = await fetch('/api/players').then(r=>r.json());
+    const order = ['Goalkeepers','Defenders','Midfielders','Forwards'];
+    box.innerHTML = order.map(cat => {
+      const group = players.filter(p => p.category === cat);
+      if (!group.length) return '';
+      return `
+        <h2 style="font-size:1.3rem; margin:40px 0 18px; color:var(--pitch);">${cat}</h2>
+        <div class="roster-grid">
+          ${group.map(p => `
+            <div class="card player">
+              <span class="num-badge">${p.squad_number}</span>
+              <div><h3 class="pname">${p.name}</h3><p class="muted">${p.role_note || ''}</p></div>
+            </div>`).join('')}
+        </div>`;
+    }).join('');
+  }catch(err){
+    box.textContent = 'Could not load the squad right now.';
+  }
+}
+loadRoster();
+</script>
+</body>
+</html>
