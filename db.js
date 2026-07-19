@@ -49,6 +49,11 @@ db.exec(`
     image_url TEXT
   );
 
+  CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL
+  );
+
   CREATE TABLE IF NOT EXISTS contact_messages (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -121,6 +126,23 @@ if (count('gallery') === 0) {
     ['Fans', '#1F4D36', '#F4C430', null]
   ].forEach(row => stmt.run(...row));
   console.log('Seeded gallery');
+}
+
+if (count('settings') === 0) {
+  const stmt = db.prepare('INSERT INTO settings (key, value) VALUES (?, ?)');
+  [
+    ['club_name', 'Majengo FC'],
+    ['founded_year', '2011'],
+    ['hero_eyebrow', 'Home of Majengo Football Club'],
+    ['hero_tagline', 'Every street has a striker.'],
+    ['hero_description', "Founded on a dirt pitch in Majengo, built by the neighbourhood. Fifteen seasons on, we're still playing for the same badge."],
+    ['league_position', '3rd'],
+    ['home_ground', 'Majengo Grounds'],
+    ['training_schedule', 'Training: Tue & Thu, 17:30'],
+    ['contact_email', 'info@majengofc.example'],
+    ['contact_phone', '+254 700 000 000']
+  ].forEach(row => stmt.run(...row));
+  console.log('Seeded settings');
 }
 
 module.exports = db;
