@@ -140,7 +140,8 @@ if (count('settings') === 0) {
     ['home_ground', 'Majengo Grounds'],
     ['training_schedule', 'Training: Tue & Thu, 17:30'],
     ['contact_email', 'info@majengofc.example'],
-    ['contact_phone', '+254 700 000 000']
+    ['contact_phone', '+254 700 000 000'],
+    ['crest_url', '']
   ].forEach(row => stmt.run(...row));
   console.log('Seeded settings');
 }
