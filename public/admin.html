@@ -145,6 +145,12 @@
   <!-- SETTINGS -->
   <section class="admin-section" id="tab-settings">
     <div class="form-card">
+      <h3>Club Logo</h3>
+      <label>Crest / logo image URL</label>
+      <input type="text" id="s-crest_url" placeholder="https://... (paste a link to your uploaded logo image)">
+      <p class="muted" style="font-size:0.85rem; margin-top:-6px;">Upload your logo somewhere first (e.g. Imgur, Google Photos share link) and paste the image link here. Leave blank to keep the default "M" circle.</p>
+    </div>
+    <div class="form-card">
       <h3>Homepage</h3>
       <label>Eyebrow text (small line above the headline)</label>
       <input type="text" id="s-hero_eyebrow">
@@ -339,7 +345,7 @@ async function markRead(id){ await api('/api/contact/'+id+'/read', {method:'PUT'
 async function deleteMessage(id){ if(confirm('Delete this message?')){ await api('/api/contact/'+id, {method:'DELETE'}); loadMessages(); } }
 
 // ---------- Settings ----------
-const SETTINGS_KEYS = ['hero_eyebrow','hero_tagline','hero_description','founded_year','league_position','home_ground','training_schedule','contact_email','contact_phone'];
+const SETTINGS_KEYS = ['crest_url','hero_eyebrow','hero_tagline','hero_description','founded_year','league_position','home_ground','training_schedule','contact_email','contact_phone'];
 async function loadSettings(){
   const settings = await api('/api/settings');
   SETTINGS_KEYS.forEach(key => {
