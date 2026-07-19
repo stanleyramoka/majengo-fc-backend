@@ -44,15 +44,15 @@
       <div style="display:flex; flex-direction:column; gap:18px;">
         <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
           <span class="num-badge">&#128205;</span>
-          <div><strong>Majengo Grounds</strong><br><span class="muted">Training: Tue &amp; Thu, 17:30</span></div>
+          <div><strong id="info-ground">Majengo Grounds</strong><br><span class="muted" id="info-training">Training: Tue &amp; Thu, 17:30</span></div>
         </div>
         <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
           <span class="num-badge">&#9993;</span>
-          <div><strong>info@majengofc.example</strong><br><span class="muted">General enquiries</span></div>
+          <div><strong id="info-email">info@majengofc.example</strong><br><span class="muted">General enquiries</span></div>
         </div>
         <div class="card" style="padding:18px 22px; display:flex; gap:16px; align-items:center;">
           <span class="num-badge">&#128222;</span>
-          <div><strong>+254 700 000 000</strong><br><span class="muted">Club secretary</span></div>
+          <div><strong id="info-phone">+254 700 000 000</strong><br><span class="muted">Club secretary</span></div>
         </div>
       </div>
     </div>
@@ -101,6 +101,13 @@
 
 <script src="script.js"></script>
 <script>
+fetch('/api/settings').then(r=>r.json()).then(settings => {
+  if (settings.home_ground) document.getElementById('info-ground').textContent = settings.home_ground;
+  if (settings.training_schedule) document.getElementById('info-training').textContent = settings.training_schedule;
+  if (settings.contact_email) document.getElementById('info-email').textContent = settings.contact_email;
+  if (settings.contact_phone) document.getElementById('info-phone').textContent = settings.contact_phone;
+}).catch(()=>{});
+
 document.getElementById('contact-form').addEventListener('submit', async (e) => {
   e.preventDefault();
   const status = document.getElementById('form-status');
